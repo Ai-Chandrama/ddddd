@@ -1,0 +1,238 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgb(4, 29, 29);
+        }
+        .container {
+            color: black;
+            background-color: white;
+            width: 300px;
+            height: 450px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container h2 {
+            margin-top: 30px;
+        }
+        .inputs {
+            margin-top: 10px;
+            width: 90%;
+            position: relative;
+            align-items: center;
+        }
+        .inputs input {
+            position: absolute;
+            width: 100%;
+            height: 45px;
+            padding: 0px 15px;
+            border-radius: 10px;
+            outline: none;
+            border: 1.5px solid rgb(14, 82, 82);
+            background-color: transparent;
+            text-overflow: ellipsis;
+        }
+        .inputs .Add {
+            position: absolute;
+            right: 0px;
+            height: 45px;
+            padding: 0px 20px;
+            border-radius: 5px;
+            outline: none;
+            font-weight: bolder;
+            font-size: 30px;
+            cursor: pointer;
+            border: 1.5px solid rgb(14, 82, 82);
+            color: rgb(3, 97, 97);
+        }
+        .AddingLists {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 80px;
+            overflow-y: scroll;
+        }
+        .AddingLists::-webkit-scrollbar {
+            display: none;
+        }
+        .Lists {
+            width: 250px;
+            padding: 6px 8px;
+            font-weight: bolder;
+            font-size: 18px;
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            border-bottom: 1px solid gray;
+            cursor: pointer;
+            position: relative;
+        }
+        .Lists .remove {
+            color: black;
+            cursor: pointer;
+            position: absolute;
+            right: 10px;
+            display: none;
+            transition: all 0.2s ease;
+        }
+        .Lists .remove {
+            color: red;
+        }
+        .Chek {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>To Do App</h2>
+        <div class="inputs">
+            <input type="text" placeholder="Enter Your Task" id="input">
+            <button class="Add" onclick="Add()">+ </button>
+        </div>
+
+        <div class="AddingLists"></div>
+    </div>
+
+    <script>
+        const INPUT = document.getElementById("input");
+        const AddingListsBox = document.querySelector(".AddingLists");
+
+        // Function to save the current state of tasks to localStorage
+        function saveToLocalStorage() {
+            const tasks = [];
+            document.querySelectorAll('.Lists').forEach(item => {
+                tasks.push({
+                    text: item.querySelector('.task').innerText,
+                    checked: item.querySelector('.Chek') ? true : false
+                });
+            });
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        // Function to display tasks from localStorage
+        function loadFromLocalStorage() {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks.forEach(task => {
+                let listItems = document.createElement("div");
+                listItems.classList.add("Lists");
+                AddingListsBox.prepend(listItems);
+
+                let Element0 = document.createElement("span");
+                Element0.innerHTML = task.checked ? `<i class="fa-solid fa-circle-check"></i>` : `<i class="fa-regular fa-circle"></i>`;
+                if (task.checked) Element0.classList.add("Chek");
+
+                let Element1 = document.createElement("div");
+                Element1.classList.add("task");
+                Element1.innerHTML = `${task.text}`;
+
+                let Element2 = document.createElement("span");
+                Element2.classList.add("remove");
+                Element2.innerHTML = `<i class="fa-solid fa-trash"></i>`;
+
+                listItems.appendChild(Element0);
+                listItems.appendChild(Element1);
+                listItems.appendChild(Element2);
+
+                // Remove task on clicking the trash icon
+                Element2.addEventListener("click", (e) => {
+                    e.stopPropagation();  // Prevent listItem click from toggling the class
+                    listItems.remove();
+                    saveToLocalStorage();  // Save to localStorage after deletion
+                });
+
+                // Toggle the check icon and class on listItem click
+                listItems.addEventListener("click", () => {
+                    Element0.classList.toggle("Chek");
+                    if (Element0.classList.contains("Chek")) {
+                        Element2.style.display = "block";
+                        Element0.innerHTML = `<i class="fa-solid fa-circle-check"></i>`;
+                    } else {
+                        Element2.style.display = "none";
+                        Element0.innerHTML = `<i class="fa-regular fa-circle"></i>`;
+                    }
+                    saveToLocalStorage();  // Save to localStorage after toggling
+                });
+
+                if (task.checked) {
+                    Element2.style.display = "block";
+                }
+            });
+        }
+
+        // Add new task and save it to localStorage
+        function Add() {
+            if (INPUT.value == "") {
+                alert("Please enter a task");
+                return;
+            }
+
+            let listItems = document.createElement("div");
+            listItems.classList.add("Lists");
+            AddingListsBox.prepend(listItems);
+
+            let Element0 = document.createElement("span");
+            Element0.innerHTML = `<i class="fa-regular fa-circle"></i>`;
+
+            let Element1 = document.createElement("div");
+            Element1.classList.add("task");
+            Element1.innerHTML = `${INPUT.value}`;
+
+            let Element2 = document.createElement("span");
+            Element2.classList.add("remove");
+            Element2.innerHTML = `<i class="fa-solid fa-trash"></i>`;
+
+            listItems.appendChild(Element0);
+            listItems.appendChild(Element1);
+            listItems.appendChild(Element2);
+
+            INPUT.value = "";
+
+            // Remove task on clicking the trash icon
+            Element2.addEventListener("click", (e) => {
+                e.stopPropagation();
+                listItems.remove();
+                saveToLocalStorage();
+            });
+
+            // Toggle the check icon and class on listItem click
+            listItems.addEventListener("click", () => {
+                Element0.classList.toggle("Chek");
+                if (Element0.classList.contains("Chek")) {
+                    Element2.style.display = "block";
+                    Element0.innerHTML = `<i class="fa-solid fa-circle-check"></i>`;
+                } else {
+                    Element2.style.display = "none";
+                    Element0.innerHTML = `<i class="fa-regular fa-circle"></i>`;
+                }
+                saveToLocalStorage();
+            });
+
+            saveToLocalStorage();  // Save to localStorage after adding
+        }
+
+        // Load tasks from localStorage when the page loads
+        window.onload = loadFromLocalStorage;
+    </script>
+</body>
+</html>
